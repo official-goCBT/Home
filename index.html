@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>goCBT | Secure Examination Portal</title>
+    <title>goCBT | JSS 1 Learning Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
@@ -13,12 +13,13 @@
             --text: #e0e0e0;
             --success: #4caf50;
             --error: #f44336;
+            --google-blue: #4285F4;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
             overflow-x: hidden;
             user-select: none;
@@ -32,433 +33,279 @@
             background: #000; display: flex; justify-content: center;
             align-items: center; z-index: 10000; transition: opacity 0.8s;
         }
-        .splash-content { text-align: center; }
-        .logo-text { font-size: 3.5rem; margin: 0; font-weight: 800; letter-spacing: -1px; }
-        .logo-text span { color: var(--primary); }
+        .logo-text { font-size: 3.5rem; margin: 0; font-weight: 800; }
+        .logo-text span { color: var(--google-blue); }
         .spinner {
             width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
             border-left-color: var(--primary); border-radius: 50%;
             margin: 20px auto; animation: spin 1s linear infinite;
         }
-        .progress-container { width: 200px; height: 4px; background: #222; margin: 10px auto; border-radius: 2px; }
-        #progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.3s; }
 
-        /* --- LAYOUT --- */
+        /* --- SEARCH & CARDS --- */
         .wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .quiz-container {
             background: var(--card); padding: 40px; border-radius: 16px;
-            width: 100%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid #222; text-align: center; position: relative;
+            width: 100%; max-width: 800px; text-align: center;
         }
+        
+        .course-card {
+            background: #1c1c1e; border: 1px solid #2c2c2e;
+            border-radius: 16px; padding: 20px; transition: 0.3s; cursor: pointer;
+        }
+        .course-card:hover { transform: translateY(-5px); border-color: var(--primary); }
 
-        /* --- INPUTS & BUTTONS --- */
+        /* --- UI ELEMENTS --- */
         input, select {
-            width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px;
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 30px;
             border: 1px solid #333; background: #252525; color: #fff; box-sizing: border-box;
         }
         button {
-            width: 100%; padding: 14px; margin-top: 15px; border-radius: 8px;
-            border: none; font-weight: bold; cursor: pointer; transition: 0.2s;
-            background: var(--primary); color: white;
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.2s; background: var(--primary); color: white;
         }
-        button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .search-btn { width: auto; padding: 10px 20px; border-radius: 20px; background: #3c4043; margin: 5px; }
 
         /* --- PROCTORING --- */
-        .proctor-panel { position: absolute; top: -10px; right: -160px; width: 140px; }
-        .camera-box {
-            width: 140px; height: 105px; background: #000; border: 2px solid var(--error);
-            border-radius: 8px; overflow: hidden; position: relative;
-        }
+        .proctor-panel { position: absolute; top: 20px; right: 20px; width: 120px; }
+        .camera-box { width: 100%; height: 90px; background: #000; border: 2px solid var(--error); border-radius: 8px; overflow: hidden; }
         #webcam { width: 100%; height: 100%; object-fit: cover; }
-        .recording-dot {
-            position: absolute; top: 5px; right: 5px; width: 8px; height: 8px;
-            background: red; border-radius: 50%; animation: blink 1s infinite;
-        }
 
-        /* --- MODAL --- */
+        /* --- MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-            display: flex; justify-content: center; align-items: center; z-index: 9999;
+            background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 12px; width: 300px; text-align: center; }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 12px; width: 350px; text-align: center; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes blink { 50% { opacity: 0; } }
-       .search-btn {
-    display: inline-block;
-    width: auto !important;
-    padding: 10px 20px !important;
-    margin: 0 5px;
-    background: #303134;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    color: #e8eaed;
-}
-
-.search-btn:hover {
-    border: 1px solid #5f6368;
-    background: #3c4043;
-}
-
-.suggestion-item:hover {
-    background: #303134;
-}
-
-.logo-text span {
-    background: linear-gradient(to right, #4285F4, #EA4335, #FBBC05, #34A853);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
         <div class="splash-content">
-            <h1 class="logo-text">go<span>CBT</span></h1>
+            <h1 class="logo-text">go<span>Search</span></h1>
             <div class="spinner"></div>
-            <div class="progress-container"><div id="progress-bar"></div></div>
-            <p id="loader-text" style="font-size: 0.7rem; color: #555;">SYSTEM BOOTING...</p>
+            <p style="color: #555; font-size: 0.7rem; letter-spacing: 2px;">BOOTING JSS 1 ENGINE</p>
         </div>
     </div>
 
     <div class="wrapper">
-        <div id="search-portal" class="quiz-container hidden" style="max-width: 600px; background: transparent; border: none; box-shadow: none;">
-    <div class="search-logo" style="margin-bottom: 30px;">
-        <h1 class="logo-text" style="font-size: 5rem;">go<span>Search</span></h1>
-    </div>
-    
-    <div class="search-box-wrapper" style="position: relative;">
-        <input type="text" id="main-search" placeholder="Search for a subject, class, or teacher..." 
-               onkeyup="handleSearch(this.value)"
-               style="border-radius: 30px; padding: 18px 25px; font-size: 1.1rem; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-        
-        <div id="search-suggestions" class="hidden" 
-             style="background: #1a1a1a; border: 1px solid #333; border-radius: 0 0 20px 20px; text-align: left; position: absolute; width: 100%; z-index: 10; margin-top: -5px;">
+        <div id="search-portal" class="quiz-container hidden" style="background:transparent; border:none;">
+            <h1 class="logo-text" style="font-size: 4.5rem; margin-bottom: 30px;">go<span>Search</span></h1>
+            <div style="position: relative; max-width: 600px; margin: 0 auto;">
+                <input type="text" id="main-search" placeholder="Search JSS 1 Subjects..." onkeyup="handleSearch(this.value)">
+                <div id="search-suggestions" class="hidden" style="background:#252525; position:absolute; width:100%; z-index:10; border-radius: 0 0 15px 15px; text-align:left;"></div>
+            </div>
+            <div style="margin-top:20px;">
+                <button class="search-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
+                <button class="search-btn" onclick="openStudentDashboard()">👤 My Results</button>
+            </div>
+            <div id="course-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:15px; margin-top:40px;"></div>
+        </div>
+
+        <div id="login-portal" class="quiz-container hidden" style="max-width: 400px;">
+            <h2 id="login-title">Course Login</h2>
+            <input type="text" id="login-id" placeholder="Exam Number (e.g., CBT/001)">
+            <input type="password" id="login-pin" placeholder="Access PIN">
+            <input type="hidden" id="login-subject">
+            <button onclick="validateLogin()">Enter Exam Room</button>
+            <button onclick="goToSearch()" style="background:transparent; color:#888;">Cancel</button>
+        </div>
+
+        <div id="quiz-screen" class="quiz-container hidden" style="max-width: 600px; position: relative;">
+            <div class="proctor-panel"><div class="camera-box"><video id="webcam" autoplay muted></video></div></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:0.8rem;">
+                <span id="display-name"></span>
+                <span id="timer" style="color:var(--error); font-weight:bold;">00:00</span>
+            </div>
+            <h3 id="question-text"></h3>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="result-screen" class="quiz-container hidden" style="max-width: 500px;">
+            </div>
+
+        <div id="student-dashboard" class="quiz-container hidden" style="max-width: 500px;">
+            <h2>Performance History</h2>
+            <div id="history-list" style="background:#111; padding:15px; border-radius:10px; text-align:left; margin:20px 0;"></div>
+            <button onclick="goToSearch()">Return to Home</button>
         </div>
     </div>
 
-    <div class="search-buttons" style="margin-top: 25px;">
-        <button class="search-btn" onclick="executeSearch()">CBT Search</button>
-        <button class="search-btn" onclick="showStudentDashboard()" style="background: #333;">I'm Feeling Studious</button>
-    </div>
-</div>
-<div id="search-portal" class="quiz-container hidden" style="max-width: 650px; background: transparent; border: none; box-shadow: none;">
-    <div style="margin-bottom: 30px;">
-        <h1 class="logo-text" style="font-size: 5rem; letter-spacing: -2px;">go<span>Search</span></h1>
-    </div>
-    
-    <div style="position: relative; width: 100%;">
-        <input type="text" id="main-search" 
-               placeholder="Search JSS 1 Subjects, Teachers, or Topics..." 
-               onkeyup="handleSearch(this.value)"
-               style="border-radius: 30px; padding: 18px 25px; font-size: 1.1rem; border: 1px solid #3c4043; background: #202124; color: #e8eaed; width: 100%; box-sizing: border-box;">
-        
-        <div id="search-suggestions" class="hidden" 
-             style="background: #202124; border: 1px solid #3c4043; border-radius: 0 0 20px 20px; text-align: left; position: absolute; width: 100%; z-index: 100; margin-top: -2px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+    <div id="status-modal" class="modal-overlay hidden"><div class="modal-content" id="modal-body"></div></div>
+    <div id="leaderboard-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 style="color:gold;">Hall of Fame</h2>
+            <div id="leaderboard-list" style="text-align:left; margin-bottom:20px;"></div>
+            <button onclick="document.getElementById('leaderboard-modal').classList.add('hidden')">Close</button>
         </div>
-    </div>
-
-    <div style="margin-top: 25px;">
-        <button class="search-btn" onclick="executeSearch()">CBT Search</button>
-        <button class="search-btn" onclick="openStudentDashboard()" style="background: #303134;">Performance Dashboard</button>
-    </div>
-
-    <div style="margin-top: 40px; font-size: 0.85rem; color: #9aa0a6;">
-        Trending: <a href="#" onclick="selectSubject('Mathematics')" style="color: #8ab4f8; text-decoration: none; margin: 0 5px;">Mathematics</a>, 
-        <a href="#" onclick="selectSubject('Basic Science')" style="color: #8ab4f8; text-decoration: none; margin: 0 5px;">Basic Science</a>
-    </div>
-</div>
     </div>
 
     <script>
-        // --- SEARCH ENGINE LOGIC ---
-function handleSearch(query) {
-    const suggestions = document.getElementById("search-suggestions");
-    if (query.length < 1) {
-        suggestions.classList.add("hidden");
-        return;
-    }
-
-    const subjects = Object.keys(quizData);
-    const filtered = subjects.filter(s => s.toLowerCase().includes(query.toLowerCase()));
-
-    if (filtered.length > 0) {
-        suggestions.innerHTML = filtered.map(s => `
-            <div class="suggestion-item" onclick="selectSubject('${s}')" 
-                 style="padding: 12px 25px; cursor: pointer; border-bottom: 1px solid #222;">
-                🔍 <span style="margin-left:10px;">${s}</span> <small style="color:#555; float:right;">JSS 1</small>
-            </div>
-        `).join('');
-        suggestions.classList.remove("hidden");
-    } else {
-        suggestions.classList.add("hidden");
-    }
-}
-
-function selectSubject(subject) {
-    document.getElementById("main-search").value = subject;
-    document.getElementById("search-suggestions").classList.add("hidden");
-    // Show the login modal/fields to authorize the specific subject
-    document.getElementById("search-portal").classList.add("hidden");
-    document.getElementById("login-portal").classList.remove("hidden");
-    document.getElementById("login-subject").value = subject;
-}
-
-// --- UPDATED NAVIGATION AFTER EXAM ---
-function finishExam() {
-    clearInterval(timerId);
-    if (!isPremium()) {
-        localStorage.setItem("gocbt_trials", getTrialCount() + 1);
-    }
-    
-    document.getElementById("quiz-screen").classList.add("hidden");
-    document.getElementById("result-screen").classList.remove("hidden");
-    document.getElementById("final-score").innerText = score;
-
-    // Add navigation buttons to result screen
-    const btnContainer = document.querySelector("#result-screen .button-grid");
-    btnContainer.innerHTML = `
-        <button onclick="goToSearch()" style="background:#555;">Back to Search</button>
-        <button onclick="showStudentDashboard()" style="background:var(--primary);">View Dashboard</button>
-        <button onclick="generatePDF()" style="background:#ff9800;">Get Certificate</button>
-    `;
-    syncToCloud();
-}
-
-function goToSearch() {
-    document.getElementById("result-screen").classList.add("hidden");
-    document.getElementById("student-dashboard").classList.add("hidden");
-    document.getElementById("search-portal").classList.remove("hidden");
-    document.getElementById("main-search").value = "";
-}
-        // --- CONFIGURATION ---
-        const SCRIPT_URL = "YOUR_GOOGLE_SHEETS_URL"; // ADD YOUR URL HERE
-        const activationPins = ["PREMIUM-99", "GOCBT-FREE"]; // Valid Premium Pins
+        // --- DATA CONFIG ---
+        const activationPins = ["PREMIUM-99", "JSS1-FREE"];
+        const premiumSubjects = ["Mathematics", "Basic Science"];
+        const studentDatabase = { "CBT/001": { name: "John Doe", pin: "1111" }, "CBT/002": { name: "Jane Smith", pin: "2222" } };
         
-        const studentDatabase = {
-            "CBT/001": { name: "John Doe", pin: "1111" },
-            "CBT/002": { name: "Jane Smith", pin: "2222" }
-        };
         const quizData = {
-            Math: [
-                { q: "What is 25 x 4?", a: "100", options: ["80", "100", "120", "90"] },
-                { q: "Square root of 144?", a: "12", options: ["10", "11", "12", "14"] }
-            ],
-            Science: [
-                { q: "Which planet is the Red Planet?", a: "Mars", options: ["Mars", "Venus", "Jupiter", "Earth"] }
-            ]
+            "Mathematics": [{ q: "Square root of 81?", a: "9", options: ["7","8","9","10"] }, { q: "25% of 200?", a: "50", options: ["25","50","75","100"] }],
+            "English Language": [{ q: "Plural of Mouse?", a: "Mice", options: ["Mouses","Mice","Mices","Mouse"] }],
+            "Basic Science": [{ q: "Powerhouse of the cell?", a: "Mitochondria", options: ["Nucleus","Mitochondria","Ribosome","Wall"] }]
         };
 
-        // --- STATE ---
-        let currentQuestions = [];
-        let currentIdx = 0;
-        let score = 0;
-        let timeLeft = 600; // 10 minutes
-        let timerId;
+        let currentQuestions = [], currentIdx = 0, score = 0, timeLeft = 600, timerId;
 
-        // --- FREEMIUM HELPERS ---
-        function getTrialCount() { return parseInt(localStorage.getItem("gocbt_trials") || "0"); }
-        function isPremium() { return localStorage.getItem("gocbt_premium") === "true"; }
-
-        // --- SPLASH LOGIC ---
+        // --- CORE LOGIC ---
         window.onload = () => {
-            const bar = document.getElementById("progress-bar");
-            let p = 0;
-            const iv = setInterval(() => {
-                p += 25;
-                bar.style.width = p + "%";
-                if(p >= 100) {
-                    clearInterval(iv);
-                    setTimeout(() => {
-                        document.getElementById("splash-screen").style.opacity = "0";
-                        setTimeout(() => {
-                            document.getElementById("splash-screen").style.display = "none";
-                            document.getElementById("login-portal").classList.remove("hidden");
-                            updateTrialStatus();
-                            checkPersistence();
-                        }, 800);
-                    }, 400);
-                }
-            }, 300);
+            setTimeout(() => {
+                document.getElementById("splash-screen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("splash-screen").style.display = "none";
+                    document.getElementById("search-portal").classList.remove("hidden");
+                    renderCourseCards();
+                }, 800);
+            }, 2000);
         };
 
-        function updateTrialStatus() {
-            const statusEl = document.getElementById("trial-status");
-            if (isPremium()) {
-                statusEl.innerText = "Premium Access Active";
-                statusEl.style.color = "var(--success)";
-            } else {
-                statusEl.innerText = `Free Trial: ${getTrialCount()} of 3 attempts used.`;
-            }
+        function renderCourseCards() {
+            const grid = document.getElementById("course-grid");
+            grid.innerHTML = Object.keys(quizData).map(sub => `
+                <div class="course-card" onclick="selectSubject('${sub}')">
+                    <div style="font-size: 2rem;">📚</div>
+                    <div style="font-weight:bold; margin-top:10px;">${sub}</div>
+                    ${premiumSubjects.includes(sub) ? '<span style="color:gold; font-size:0.7rem;">⭐ PREMIUM</span>' : ''}
+                </div>
+            `).join('');
         }
 
-        // --- AUTH ---
+        function handleSearch(q) {
+            const sug = document.getElementById("search-suggestions");
+            const matches = Object.keys(quizData).filter(s => s.toLowerCase().includes(q.toLowerCase()));
+            if(q.length > 0 && matches.length > 0) {
+                sug.innerHTML = matches.map(m => `<div style="padding:10px; cursor:pointer;" onclick="selectSubject('${m}')">🔍 ${m}</div>`).join('');
+                sug.classList.remove("hidden");
+            } else sug.classList.add("hidden");
+        }
+
+        function selectSubject(s) {
+            document.getElementById("login-subject").value = s;
+            document.getElementById("login-title").innerText = `Login: ${s}`;
+            document.getElementById("search-portal").classList.add("hidden");
+            document.getElementById("login-portal").classList.remove("hidden");
+        }
+
         function validateLogin() {
             const id = document.getElementById("login-id").value;
             const pin = document.getElementById("login-pin").value;
             const sub = document.getElementById("login-subject").value;
-
-            if (id === "ADMIN") { showAdmin(); return; }
             const s = studentDatabase[id];
-            
-            if (!s || s.pin !== pin) return showModal('error', 'Denied', 'Incorrect credentials.');
-            if (!sub) return showModal('error', 'Subject', 'Choose an exam.');
 
-            // Check Trial Limit
-            if (!isPremium() && getTrialCount() >= 3) {
-                promptActivation();
-                return;
+            if(!s || s.pin !== pin) return alert("Invalid Credentials");
+            
+            if(premiumSubjects.includes(sub) && localStorage.getItem("gocbt_premium") !== "true") {
+                return promptPremium();
             }
 
-            showModal('success', 'Verified', `Welcome, ${s.name}.`, () => {
-                document.getElementById("login-portal").classList.add("hidden");
-                document.getElementById("instruction-screen").classList.remove("hidden");
-            });
+            if(parseInt(localStorage.getItem("gocbt_trials") || "0") >= 3 && localStorage.getItem("gocbt_premium") !== "true") {
+                return promptPremium();
+            }
+
+            startExam(s.name);
         }
 
-        function promptActivation() {
-            showModal('error', 'Trial Expired', 'You have used your 3 free attempts. Please enter a Premium PIN to continue.', () => {
-                const userPin = prompt("Enter Premium Activation PIN:");
-                if (activationPins.includes(userPin)) {
-                    localStorage.setItem("gocbt_premium", "true");
-                    showModal('success', 'Unlocked', 'Premium activated! Unlimited attempts now available.', () => location.reload());
-                } else {
-                    alert("Invalid PIN.");
-                }
-            });
+        function promptPremium() {
+            const p = prompt("Enter Premium PIN to unlock (or contact us on WhatsApp):");
+            if(activationPins.includes(p)) {
+                localStorage.setItem("gocbt_premium", "true");
+                alert("Premium Unlocked!");
+                location.reload();
+            }
         }
 
-        // --- EXAM LOGIC ---
-        async function startExamNow() {
-            const id = document.getElementById("login-id").value;
-            const sub = document.getElementById("login-subject").value;
-            
-            // Shuffle and slice to 10 questions for free trial
-            let allQ = [...quizData[sub]].sort(() => Math.random() - 0.5);
-            currentQuestions = isPremium() ? allQ : allQ.slice(0, 10); 
-            
-            document.getElementById("display-name").innerText = studentDatabase[id].name;
-            document.getElementById("instruction-screen").classList.add("hidden");
+        async function startExam(name) {
+            document.getElementById("login-portal").classList.add("hidden");
             document.getElementById("quiz-screen").classList.remove("hidden");
-
-            try {
-                const s = await navigator.mediaDevices.getUserMedia({video: true});
-                document.getElementById('webcam').srcObject = s;
-            } catch(e) {}
-
-            renderQ();
-            timerId = setInterval(updateTimer, 1000);
+            document.getElementById("display-name").innerText = name;
+            
+            const sub = document.getElementById("login-subject").value;
+            currentQuestions = quizData[sub].sort(() => 0.5 - Math.random()).slice(0, 10);
+            
+            try { document.getElementById('webcam').srcObject = await navigator.mediaDevices.getUserMedia({video:true}); } catch(e){}
+            
+            renderQuestion();
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").innerText = `${Math.floor(timeLeft/60)}:${timeLeft%60}`;
+                if(timeLeft <= 0) finishExam();
+            }, 1000);
         }
 
-        function renderQ() {
+        function renderQuestion() {
             const q = currentQuestions[currentIdx];
             document.getElementById("question-text").innerText = q.q;
-            const container = document.getElementById("options-container");
-            container.innerHTML = "";
-            q.options.forEach(opt => {
-                const b = document.createElement("button");
-                b.innerText = opt;
-                b.onclick = () => checkAns(opt);
-                container.appendChild(b);
-            });
-            saveState();
+            document.getElementById("options-container").innerHTML = q.options.map(opt => `
+                <button onclick="checkAnswer('${opt}')" style="margin-bottom:10px; background:#333;">${opt}</button>
+            `).join('');
         }
 
-        function checkAns(choice) {
-            if (choice === currentQuestions[currentIdx].a) score += 10;
+        function checkAnswer(ans) {
+            if(ans === currentQuestions[currentIdx].a) score += 10;
             else score -= 5;
-            
             currentIdx++;
-            if (currentIdx < currentQuestions.length) renderQ();
+            if(currentIdx < currentQuestions.length) renderQuestion();
             else finishExam();
-        }
-
-        function updateTimer() {
-            timeLeft--;
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
-            document.getElementById("timer").innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            if (timeLeft <= 0) finishExam();
         }
 
         function finishExam() {
             clearInterval(timerId);
-            
-            // Increment trial count if not premium
-            if (!isPremium()) {
-                let trials = getTrialCount();
-                localStorage.setItem("gocbt_trials", trials + 1);
+            if(localStorage.getItem("gocbt_premium") !== "true") {
+                localStorage.setItem("gocbt_trials", (parseInt(localStorage.getItem("gocbt_trials") || "0") + 1));
             }
+            
+            const name = document.getElementById("display-name").innerText;
+            const id = document.getElementById("login-id").value;
+            const sub = document.getElementById("login-subject").value;
+            
+            // Save Result
+            const results = JSON.parse(localStorage.getItem("examResults") || "[]");
+            results.push({ name, examNo: id, score, date: new Date().toLocaleDateString(), sub });
+            localStorage.setItem("examResults", JSON.stringify(results));
 
-            localStorage.removeItem("gocbt_state");
             document.getElementById("quiz-screen").classList.add("hidden");
-            document.getElementById("result-screen").classList.remove("hidden");
-            document.getElementById("final-score").innerText = score;
-            syncToCloud();
+            const rs = document.getElementById("result-screen");
+            rs.classList.remove("hidden");
+            rs.innerHTML = `
+                <h2>Score: ${score}</h2>
+                <button onclick="shareScore('${name}', '${sub}', ${score})" style="background:#25D366; margin-bottom:10px;">Share to WhatsApp</button>
+                <button onclick="goToSearch()">Back to Search</button>
+            `;
         }
 
-        // --- DATA ---
-        function saveState() {
-            const state = { id: document.getElementById("login-id").value, sub: document.getElementById("login-subject").value, idx: currentIdx, sc: score, time: timeLeft };
-            localStorage.setItem("gocbt_state", JSON.stringify(state));
+        function shareScore(n, s, sc) {
+            const msg = `I scored ${sc} in JSS 1 ${s} on goCBT! Beat me: ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
         }
 
-        function checkPersistence() {
-            const s = JSON.parse(localStorage.getItem("gocbt_state"));
-            if (s) {
-                if(confirm("Resume previous session?")) {
-                    currentIdx = s.idx; score = s.sc; timeLeft = s.time;
-                    document.getElementById("login-id").value = s.id;
-                    document.getElementById("login-subject").value = s.sub;
-                    startExamNow();
-                } else localStorage.removeItem("gocbt_state");
-            }
+        function goToSearch() {
+            location.reload(); // Simplest way to reset state
         }
 
-        async function syncToCloud() {
-            const data = { examNo: document.getElementById("login-id").value, name: document.getElementById("display-name").innerText, score: score, date: new Date().toLocaleString() };
-            // Note: Cloud sync is only a dummy in this frontend-only example
-            console.log("Syncing to Cloud:", data);
+        function showLeaderboard() {
+            const res = JSON.parse(localStorage.getItem("examResults") || "[]").sort((a,b) => b.score - a.score).slice(0,5);
+            document.getElementById("leaderboard-list").innerHTML = res.map((r,i) => `<p>${i+1}. ${r.name} - ${r.score}pts (${r.sub})</p>`).join('');
+            document.getElementById("leaderboard-modal").classList.remove("hidden");
+        }
+
+        function openStudentDashboard() {
+            const id = prompt("Enter Exam Number to view history:");
+            const res = JSON.parse(localStorage.getItem("examResults") || "[]").filter(r => r.examNo === id);
+            if(res.length === 0) return alert("No history found.");
             
-            // Local backup for Admin panel
-            const localRes = JSON.parse(localStorage.getItem("examResults") || "[]");
-            localRes.push(data);
-            localStorage.setItem("examResults", JSON.stringify(localRes));
+            document.getElementById("search-portal").classList.add("hidden");
+            document.getElementById("student-dashboard").classList.remove("hidden");
+            document.getElementById("history-list").innerHTML = res.map(r => `<p>${r.date}: ${r.sub} - ${r.score}pts</p>`).join('');
         }
-
-        // --- UTILS ---
-        function showModal(type, title, msg, callback) {
-            const m = document.getElementById("status-modal");
-            document.getElementById("modal-icon").innerHTML = type === 'success' ? '✅' : '❌';
-            document.getElementById("modal-title").innerText = title;
-            document.getElementById("modal-msg").innerText = msg;
-            m.classList.remove("hidden");
-            document.getElementById("modal-btn").onclick = () => { m.classList.add("hidden"); if(callback) callback(); };
-        }
-
-        function showAdmin() {
-            document.getElementById("login-portal").classList.add("hidden");
-            document.getElementById("admin-dashboard").classList.remove("hidden");
-            const res = JSON.parse(localStorage.getItem("examResults") || "[]");
-            document.getElementById("results-body").innerHTML = res.map(r => `<tr><td>${r.examNo}</td><td>${r.name}</td><td>${r.score}</td><td>${r.date}</td></tr>`).join('');
-        }
-
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'mm', 'a4');
-            doc.text("GO-CBT OFFICIAL CERTIFICATE", 148, 50, {align: 'center'});
-            doc.text(`Candidate: ${document.getElementById("display-name").innerText}`, 148, 70, {align: 'center'});
-            doc.text(`Score: ${score}`, 148, 90, {align: 'center'});
-            doc.save("Result.pdf");
-        }
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && !document.getElementById("quiz-screen").classList.contains("hidden")) alert("Warning: Leaving the tab is logged.");
-        });
     </script>
 </body>
 </html>
