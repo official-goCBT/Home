@@ -85,6 +85,32 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes blink { 50% { opacity: 0; } }
+       .search-btn {
+    display: inline-block;
+    width: auto !important;
+    padding: 10px 20px !important;
+    margin: 0 5px;
+    background: #303134;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #e8eaed;
+}
+
+.search-btn:hover {
+    border: 1px solid #5f6368;
+    background: #3c4043;
+}
+
+.suggestion-item:hover {
+    background: #303134;
+}
+
+.logo-text span {
+    background: linear-gradient(to right, #4285F4, #EA4335, #FBBC05, #34A853);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
     </style>
 </head>
 <body>
@@ -99,20 +125,26 @@
     </div>
 
     <div class="wrapper">
-        <div id="login-portal" class="quiz-container hidden">
-            <h2 style="margin-bottom: 5px;">Portal Login</h2>
-            <p id="trial-status" style="color: #666; margin-bottom: 25px; font-size: 0.85rem;">Enter credentials to begin</p>
-            <input type="text" id="login-id" placeholder="Examination Number">
-            <input type="password" id="login-pin" placeholder="Access PIN">
-            <select id="login-subject">
-                <option value="" disabled selected>Select Subject</option>
-                <option value="Math">Mathematics</option>
-                <option value="Science">General Science</option>
-                <option value="EnglishLanguageJSS 1">English Language JSS 1</option>
-            </select>
-            <button onclick="validateLogin()">Authorize Session</button>
+        <div id="search-portal" class="quiz-container hidden" style="max-width: 600px; background: transparent; border: none; box-shadow: none;">
+    <div class="search-logo" style="margin-bottom: 30px;">
+        <h1 class="logo-text" style="font-size: 5rem;">go<span>Search</span></h1>
+    </div>
+    
+    <div class="search-box-wrapper" style="position: relative;">
+        <input type="text" id="main-search" placeholder="Search for a subject, class, or teacher..." 
+               onkeyup="handleSearch(this.value)"
+               style="border-radius: 30px; padding: 18px 25px; font-size: 1.1rem; border: 1px solid #333; background: #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+        
+        <div id="search-suggestions" class="hidden" 
+             style="background: #1a1a1a; border: 1px solid #333; border-radius: 0 0 20px 20px; text-align: left; position: absolute; width: 100%; z-index: 10; margin-top: -5px;">
         </div>
+    </div>
 
+    <div class="search-buttons" style="margin-top: 25px;">
+        <button class="search-btn" onclick="executeSearch()">CBT Search</button>
+        <button class="search-btn" onclick="showStudentDashboard()" style="background: #333;">I'm Feeling Studious</button>
+    </div>
+</div>
         <div id="instruction-screen" class="quiz-container hidden">
             <h2>Examination Rules</h2>
             <div style="text-align: left; font-size: 0.85rem; background: #111; padding: 15px; border-radius: 8px;">
@@ -167,6 +199,66 @@
     </div>
 
     <script>
+        // --- SEARCH ENGINE LOGIC ---
+function handleSearch(query) {
+    const suggestions = document.getElementById("search-suggestions");
+    if (query.length < 1) {
+        suggestions.classList.add("hidden");
+        return;
+    }
+
+    const subjects = Object.keys(quizData);
+    const filtered = subjects.filter(s => s.toLowerCase().includes(query.toLowerCase()));
+
+    if (filtered.length > 0) {
+        suggestions.innerHTML = filtered.map(s => `
+            <div class="suggestion-item" onclick="selectSubject('${s}')" 
+                 style="padding: 12px 25px; cursor: pointer; border-bottom: 1px solid #222;">
+                🔍 <span style="margin-left:10px;">${s}</span> <small style="color:#555; float:right;">JSS 1</small>
+            </div>
+        `).join('');
+        suggestions.classList.remove("hidden");
+    } else {
+        suggestions.classList.add("hidden");
+    }
+}
+
+function selectSubject(subject) {
+    document.getElementById("main-search").value = subject;
+    document.getElementById("search-suggestions").classList.add("hidden");
+    // Show the login modal/fields to authorize the specific subject
+    document.getElementById("search-portal").classList.add("hidden");
+    document.getElementById("login-portal").classList.remove("hidden");
+    document.getElementById("login-subject").value = subject;
+}
+
+// --- UPDATED NAVIGATION AFTER EXAM ---
+function finishExam() {
+    clearInterval(timerId);
+    if (!isPremium()) {
+        localStorage.setItem("gocbt_trials", getTrialCount() + 1);
+    }
+    
+    document.getElementById("quiz-screen").classList.add("hidden");
+    document.getElementById("result-screen").classList.remove("hidden");
+    document.getElementById("final-score").innerText = score;
+
+    // Add navigation buttons to result screen
+    const btnContainer = document.querySelector("#result-screen .button-grid");
+    btnContainer.innerHTML = `
+        <button onclick="goToSearch()" style="background:#555;">Back to Search</button>
+        <button onclick="showStudentDashboard()" style="background:var(--primary);">View Dashboard</button>
+        <button onclick="generatePDF()" style="background:#ff9800;">Get Certificate</button>
+    `;
+    syncToCloud();
+}
+
+function goToSearch() {
+    document.getElementById("result-screen").classList.add("hidden");
+    document.getElementById("student-dashboard").classList.add("hidden");
+    document.getElementById("search-portal").classList.remove("hidden");
+    document.getElementById("main-search").value = "";
+}
         // --- CONFIGURATION ---
         const SCRIPT_URL = "YOUR_GOOGLE_SHEETS_URL"; // ADD YOUR URL HERE
         const activationPins = ["PREMIUM-99", "GOCBT-FREE"]; // Valid Premium Pins
@@ -182,10 +274,6 @@
             ],
             Science: [
                 { q: "Which planet is the Red Planet?", a: "Mars", options: ["Mars", "Venus", "Jupiter", "Earth"] }
-            ],
-            EnglishLanguageJSS 1: [
-                { q: "Which of these is a Countable Noun?", a: "Chair", options: ["Chair", "Water", "Air", "Oil"] },
-                { q: "Square root of 144?", a: "12", options: ["10", "11", "12", "14"] }
             ]
         };
 
