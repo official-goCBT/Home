@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>goCBT | JSS 1 Learning Portal</title>
+    <title>goCBT Learning Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
@@ -99,22 +99,22 @@
 
     <div id="splash-screen">
         <div class="splash-content">
-            <h1 class="logo-text">go<span>Search</span></h1>
+            <h1 class="logo-text">go<span>Apps</span></h1>
             <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--google-blue); border-radius: 50%; margin: 20px auto; animation: spin 1s linear infinite;"></div>
-            <p style="color: #555; font-size: 0.7rem; letter-spacing: 2px;">POWERING JSS 1 EXCELLENCE</p>
+            <p style="color: #555; font-size: 0.7rem; letter-spacing: 2px;">POWERING ACADEMIC EXCELLENCE</p>
         </div>
     </div>
 
     <div class="wrapper">
         <div id="search-portal" class="quiz-container hidden" style="background:transparent; border:none; box-shadow:none;">
-            <h1 class="logo-text" style="font-size: 5rem; margin-bottom: 30px;">go<span>Search</span></h1>
+            <h1 class="logo-text" style="font-size: 5rem; margin-bottom: 30px;">go<span>CBT</span></h1>
             <div style="position: relative;">
-                <input type="text" id="main-search" class="search-input" placeholder="Search JSS 1 Subjects, Teachers, or Topics..." onkeyup="handleSearch(this.value)">
+                <input type="text" id="main-search" class="search-input" placeholder="Search by Subjects, Teachers, or Topics..." onkeyup="handleSearch(this.value)">
                 <div id="search-suggestions" class="suggestion-box hidden"></div>
             </div>
             <div style="margin-top: 25px;">
                 <button class="btn-outline" onclick="showLeaderboard()">🏆 School Leaderboard</button>
-                <button class="btn-outline" onclick="openStudentDashboard()">👤 My Performance</button>
+                <button class="btn-outline" onclick="openStudentDashboard()">👤 Results</button>
             </div>
             <div class="course-grid" id="course-grid"></div>
         </div>
@@ -160,7 +160,7 @@
     <div id="status-modal" class="modal-overlay hidden"><div class="modal-content" id="modal-body"></div></div>
     <div id="leaderboard-modal" class="modal-overlay hidden">
         <div class="modal-content" style="width:400px;">
-            <h2 style="color:var(--gold);">🏆 JSS 1 Hall of Fame</h2>
+            <h2 style="color:var(--gold);">🏆Hall of Fame</h2>
             <div id="leaderboard-list" style="text-align:left; margin:20px 0;"></div>
             <button onclick="document.getElementById('leaderboard-modal').classList.add('hidden')" style="background:#444;">Close</button>
         </div>
@@ -169,7 +169,7 @@
     <script>
         // --- CONFIGURATION ---
         const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL"; // REPLACE THIS
-        const WHATSAPP_NUM = "2348000000000"; // REPLACE THIS
+        const WHATSAPP_NUM = "2348157505037"; // REPLACE THIS
         
         const activationPins = ["GOCBT-7721-AX", "GOCBT-3345-AX", "GOCBT-8812-AX", "PREMIUM-99"];
         const premiumSubjects = ["Mathematics", "Basic Science"];
@@ -324,7 +324,7 @@
 
         function shareScore() {
             const sub = document.getElementById("login-subject").value;
-            const msg = `I scored ${score} pts in JSS 1 ${sub} on goCBT! 🏆 Can you beat me? Try here: ${window.location.href}`;
+            const msg = `I scored ${score} pts ${sub} on goCBT! 🏆 Can you beat me? Try here: ${window.location.href}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
         }
 
