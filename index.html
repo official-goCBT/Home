@@ -143,7 +143,7 @@
             <h1 id="final-score" style="font-size: 3rem; margin: 10px 0;">0</h1>
             <button onclick="generatePDF()" style="background:#ff9800">Download Certificate</button>
             <button onclick="window.print()" style="background:#2196f3">Print Summary</button>
-            <button onclick="location.reload()" style="background:#444">Logout</button>
+            <button onclick="location.reload()" style="background:#444">Start Over</button>
         </div>
 
         <div id="admin-dashboard" class="quiz-container hidden" style="max-width: 700px;">
@@ -171,17 +171,29 @@
         const activationPins = ["PREMIUM-99", "GOCBT-FREE"]; // Valid Premium Pins
         
         const studentDatabase = {
-            "CBT/001": { name: "John Doe", pin: "1111" },
-            "CBT/002": { name: "Jane Smith", pin: "2222" }
+            "goCBT/ST/Demo": { name: "Demo User", pin: "1111" },
+            "goCBT/ST/002": { name: "Jane Smith", pin: "2222" }
         };
         const quizData = {
-            Math: [
+            Maths_JSS2: [
                 { q: "What is 25 x 4?", a: "100", options: ["80", "100", "120", "90"] },
                 { q: "Square root of 144?", a: "12", options: ["10", "11", "12", "14"] }
             ],
-            Science: [
+            Basic Science_JSS1: [
                 { q: "Which planet is the Red Planet?", a: "Mars", options: ["Mars", "Venus", "Jupiter", "Earth"] }
+            ],
+			English Language_JSS1: [
+                { q: "Which of the following is a "Proper Noun"?", c: "University of Ibadan", options: ["University", "Education", "University of Ibadan", "Student"] },
+				{ q: "Identify the *Collective Noun* in this sentence: The congregation listened to the sermon.", a: "Congregation", options: ["Congregation", "Listened", "Sermon", "The"] },
+				{ q: "Wisdom is better than strength. In this sentence, what type of noun is *Wisdom*?", b: "Abstract Noun", options: ["Concrete Noun", "Abstract Noun", "Common Noun", "Collective Noun"] },
+				{ q: "Which of these is a compound noun?", c: "Classroom", options: ["School", "Principal", "Classroom", "Teacher"] }
             ]
+			{ q: "What is the plural for the Noun *Knife*?", d: "Knives", options: ["knifes", "knive", "knivess", "Knives"] },
+			{ q: "Which of these nouns is of the Common Gender?", b: "Cousin", options: ["King", "Cousin", "Queen", "Table"] },
+			{ q: "Identify the *Neuter Gender* noun in the list below:", c: "Computer", options: ["Lioness", "Hero", "Computer", "Servant"] },
+			{ q: "Which of the following is an *Uncountable Noun?", b: "Information", options: ["Bottle", "Information", "Assignment", "Chair"] },
+			{ q: "Choose the correct word to complete the sentence: How_____ sugar do you want in your tea?", c: "Much", options: ["Many", "Few", "Much", "Several"] },
+			{ q: "In the sentence: Tolu gave Bisi a book. What is the *Direct Object*?", d: "Book", options: ["Tolu", "Gave", "Bisi", "Book"] }
         };
 
         // --- STATE ---
