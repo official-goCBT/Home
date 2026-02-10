@@ -257,15 +257,16 @@
             else finishExam();
         }
 
-        function finishExam() {
-            clearInterval(timerId);
-            if(localStorage.getItem("gocbt_premium") !== "true") {
-                localStorage.setItem("gocbt_trials", (parseInt(localStorage.getItem("gocbt_trials") || "0") + 1));
-            }
-            
-            const name = document.getElementById("display-name").innerText;
-            const id = document.getElementById("login-id").value;
-            const sub = document.getElementById("login-subject").value;
+       function syncToCloud(data) {
+       const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQ447n8lIeRUYnMVH-CUvTDGWtjJszef-yvxvTXBhdTDMb0tA9_7W25u1cv447idIhTQ/exec"; 
+    
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Essential for Google Apps Script
+        cache: 'no-cache',
+        body: JSON.stringify(data)
+    }).then(() => console.log("Cloud Sync Complete"));
+}
             
             // Save Result
             const results = JSON.parse(localStorage.getItem("examResults") || "[]");
